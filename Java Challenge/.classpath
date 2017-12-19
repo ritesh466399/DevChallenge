@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="Java Challenge/src/main/java"/>
+	<classpathentry kind="src" path="Java Challenge/src/main/resources"/>
+	<classpathentry kind="src" path="Java Challenge/src/test/java"/>
+	<classpathentry kind="src" path="Java Challenge/src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

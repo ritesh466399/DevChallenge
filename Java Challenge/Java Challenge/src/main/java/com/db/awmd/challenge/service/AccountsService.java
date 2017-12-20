@@ -30,7 +30,9 @@ public class AccountsService {
 		this.accountsRepository = accountsRepository;
 		this.notificationService =  notificationService;
 	}
-
+	final Lock AccountFromlock = new ReentrantLock();
+	final Lock AccountTolock = new ReentrantLock();
+	
 	public void createAccount(Account account) {
 		this.accountsRepository.createAccount(account);
 	}
@@ -41,27 +43,27 @@ public class AccountsService {
 
 	/*This method can safely acquire any number of locks in any order without causing deadlock, 
 	 * using the tryLock() method of ReentrantLock. */
-	private void acquireLocks(Lock firstLock, Lock secondLock) throws InterruptedException {
+	private void acquireLocks(Lock accountFromLock, Lock accountToLock) throws InterruptedException {
 		while (true) {
 			// Acquire locks
 
-			boolean gotFirstLock = false;
-			boolean gotSecondLock = false;
+			boolean gotAccountFromLock = false;
+			boolean gotAccountToLock = false;
 
 			try {
-				gotFirstLock = firstLock.tryLock();
-				gotSecondLock = secondLock.tryLock();
+				gotAccountFromLock = accountFromLock.tryLock();
+				gotAccountToLock = accountToLock.tryLock();
 			} finally {
-				if (gotFirstLock && gotSecondLock) {
+				if (gotAccountFromLock && gotAccountToLock) {
 					return;
 				}
 
-				if (gotFirstLock) {
-					firstLock.unlock();
+				if (gotAccountFromLock) {
+					accountFromLock.unlock();
 				}
 
-				if (gotSecondLock) {
-					secondLock.unlock();
+				if (gotAccountToLock) {
+					accountToLock.unlock();
 				}
 			}
 
@@ -77,20 +79,22 @@ public class AccountsService {
 		 if(accountFrom.getBalance().compareTo(amount) == -1 )  {
 			  throw new InsufficientBalanceExcepion("insufficient balance");
 		  }
-		Lock lock1 = new ReentrantLock();
-		Lock lock2 = new ReentrantLock();
+		
 		try {
-			acquireLocks(lock1, lock2);
+
+			/*This method can safely acquire any number of locks in any order without causing deadlock, 
+			 * using the tryLock() method of ReentrantLock. */
+			acquireLocks(AccountFromlock, AccountTolock);
 			this.accountsRepository.transfer(accountFrom, accountTo, amount);
-			notificationService.notifyAboutTransfer(accountFrom, "$ "+ amount + "has been debited to  " + accountTo );
+			notificationService.notifyAboutTransfer(accountFrom, " $ "+ amount + "has been debited to  " + accountTo );
 			notificationService.notifyAboutTransfer(accountTo, "$ "+ amount + "has been Credited from " + accountFrom );
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
 			Thread.currentThread().interrupt();
 			throw new RuntimeException(e);
 		} finally {
-			lock1.unlock();
-			lock2.unlock();
+			AccountFromlock.unlock();
+			AccountTolock.unlock();
 		}
 
 	}

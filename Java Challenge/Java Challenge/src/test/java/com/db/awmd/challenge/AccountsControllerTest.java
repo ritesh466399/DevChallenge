@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -104,6 +105,7 @@ public class AccountsControllerTest {
         content().string("{\"accountId\":\"" + uniqueAccountId + "\",\"balance\":123.45}"));
   }
   
+  //balance check test case written in AccountServiceTest 
   @Test
   public void balanceTransfer() throws Exception {
 	  String uniqueAccountId = "Id-" + System.currentTimeMillis();
@@ -112,7 +114,7 @@ public class AccountsControllerTest {
 	    String uniqueAccountId1 = "Id-" + System.currentTimeMillis();
 	    Account accountTo = new Account(uniqueAccountId1, new BigDecimal("0.00"));
 	    this.accountsService.createAccount(accountTo);
-	    this.accountsService.transfer(accountFrom, accountTo, new BigDecimal("-050.00"));
+	    this.accountsService.transfer(accountFrom, accountTo, new BigDecimal("51.00"));
 	    
 	    this.mockMvc.perform(get("/v1/accounts/" + uniqueAccountId))
 	      .andExpect(status().isOk())
@@ -120,5 +122,6 @@ public class AccountsControllerTest {
 	        content().string("{\"accountId\":\"" + uniqueAccountId + "\",\"balance\":49.00}"));
 	    
   }
+  
   
 }
